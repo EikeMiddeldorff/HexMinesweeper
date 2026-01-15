@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class GridCell {
     private final int xCord;
     private final int yCord;
@@ -7,12 +10,15 @@ public class GridCell {
     private GridCell northWest;
     private GridCell southEast;
     private GridCell southWest;
-    private final boolean isMine;
+    private boolean isMine;
     private int adjacentMines;
+    private boolean isRevealed;
+    private boolean isFlagged;
 
     GridCell(GridCell north, GridCell south, GridCell northEast, GridCell northWest, GridCell southEast, GridCell southWest, int xCord, int yCord, boolean isMine) {
         this.north = north;
         this.south = south;
+        this.isRevealed = false;
         this.northEast = northEast;
         this.northWest = northWest;
         this.southEast = southEast;
@@ -20,6 +26,7 @@ public class GridCell {
         this.xCord = xCord;
         this.yCord = yCord;
         this.isMine = isMine;
+        this.isFlagged = false;
         if (north != null) {
             north.south = this;
         }
@@ -67,6 +74,12 @@ public class GridCell {
         return isMine;
     }
 
+    public boolean isRevealed() {
+        return isRevealed;
+    }
+    /**
+     * Method to determine the number of adjacent mines
+     */
     public void determineAdjacentMines() {
         if (isMine) {
             this.adjacentMines = -1; //-1 indicates that this cell is a mine
@@ -89,4 +102,33 @@ public class GridCell {
     public int getAdjacentMines() {
         return this.adjacentMines;
     }
+
+
+    public void setMine(boolean b) {
+        this.isMine = b;
+    }
+
+    public void setIsRevealed(boolean revealed) {
+        isRevealed = revealed;
+    }
+
+    public boolean isFlagged() {
+        return isFlagged;
+    }
+
+    public void setFlagged(boolean flagged) {
+        isFlagged = flagged;
+    }
+    public List<GridCell> getNeighbors(){
+        List<GridCell> neighbors = new ArrayList<>();
+        if(north != null) neighbors.add(north);
+        if(south != null) neighbors.add(south);
+        if(northEast != null) neighbors.add(northEast);
+        if(northWest != null) neighbors.add(northWest);
+        if(southEast != null) neighbors.add(southEast);
+        if(southWest != null) neighbors.add(southWest);
+        return neighbors;
+    }
+
+
 }

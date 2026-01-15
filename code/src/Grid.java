@@ -1,40 +1,35 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Grid {
     private final GridCell[][] cells;
     private final List<GridCell> cellList = new ArrayList<>();
     private final List <GridCell> mineCells = new ArrayList<>();
-    private final int size;
     private final int mineCount;
 
     Grid(int size, int mineCount) {
-        this.size = size;
         this.mineCount = mineCount;
         cells = new GridCell[size * 2 + 2][size * 2 + 2];
         for (int x = 1; x < size * 2; x++) {
             for (int y = 1; y < size * 2; y++) {
                 if (!(x - y > size - 1 || y - x > size - 1)) {
-                    GridCell cell = defineGridCell(x, y);
+                    GridCell cell = new GridCell(cells[x - 1][y - 1], cells[x + 1][y + 1], cells[x - 1][y], cells[x][y - 1], cells[x + 1][y], cells[x][y + 1], x, y, false);
                     cells[x][y] = cell;
+                    cellList.add(cell);
                 }
             }
         }
+        fillGridWithMines();
         for (GridCell cell: cellList){
             cell.determineAdjacentMines();
         }
     }
 
-    private GridCell defineGridCell(int x, int y) {
-        GridCell cell;
-        if(Math.random() < 0.1){
-            cell = new GridCell(cells[x - 1][y - 1], cells[x + 1][y + 1], cells[x - 1][y], cells[x][y - 1], cells[x + 1][y], cells[x][y + 1], x, y, true);
-            mineCells.add(cell);
-        }else {
-            cell = new GridCell(cells[x - 1][y - 1], cells[x + 1][y + 1], cells[x - 1][y], cells[x][y - 1], cells[x + 1][y], cells[x][y + 1], x, y, false);
+    private void fillGridWithMines(){
+        Collections.shuffle(cellList);
+        for (int i = 0; i < mineCount; i++) {
+            GridCell cell = cellList.get(i);
+            cell.setMine(true);
         }
-        cellList.add(cell);
-        return cell;
     }
     /**
      * Method to get a cell at given coordinates
@@ -61,6 +56,64 @@ public class Grid {
      */
     List<GridCell> getCells() {
         return cellList;
+    }
+
+    void rightClickedOnCell(GridCell cell) {
+        if(cell.isRevealed()){
+            if(cell.isMine()){
+                throw new IllegalStateException("If a mine cell is revealed, the game should be over.");
+            }
+
+        }else{
+            if (cell.isMine()) {
+                gameOver();
+            }else{
+                cell.setIsRevealed(true);
+            }
+        }
+    }
+    void leftClickedOnCell(GridCell cell) {
+        if(cell.isRevealed()){
+            for (GridCell currentCell: cell.getNeighbors()){
+                if(!currentCell.isRevealed()){
+                    if(currentCell.getAdjacentMines() == 0){
+                        revealZeroCells(currentCell);
+                    }
+                    else {
+                        currentCell.setIsRevealed(true);
+                    }
+                }
+            }
+        }else{
+            cell.setFlagged(true);
+        }
+    }
+    void gameOver(){
+        for (GridCell cell: cellList){
+            if(cell.isMine()){
+                cell.setIsRevealed(true);
+            }
+        }
+    }
+    void revealZeroCells (GridCell rootCell){
+        Queue<GridCell> toReveal = new LinkedList<>(List.of(rootCell));
+        if(rootCell.getAdjacentMines() != 0 || rootCell.isMine() || rootCell.isRevealed()){
+            throw new IllegalArgumentException("rootCell of this method should be valid.");
+        }
+        while (!toReveal.isEmpty()){
+            GridCell currentCell = toReveal.poll();
+            if(!currentCell.isRevealed() && !currentCell.isMine()){
+                currentCell.setIsRevealed(true);
+
+                if(currentCell.getAdjacentMines() == 0){
+                    for (GridCell neighbor: currentCell.getNeighbors()){
+                        if(!neighbor.isRevealed() && !neighbor.isMine() && !toReveal.contains(neighbor)){
+                            toReveal.add(neighbor);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

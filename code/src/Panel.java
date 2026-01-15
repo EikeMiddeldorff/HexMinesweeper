@@ -27,7 +27,7 @@ public class Panel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         // Background
-        g2.setColor(Color.blue);//LightBrown
+        g2.setColor(Color.black);//LightBrown
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         drawGrid(g2);
@@ -61,17 +61,19 @@ public class Panel extends JPanel {
             int col = cell.getYCord();
             int row = cell.getXCord();
             //kp wie ich darauf komme, aber so passt es
-            double x = Math.round(sideLength * 50f) + ((col - row) * 1.5) * sideLength;
+            double x = Math.round(sideLength * 12.5f) + ((col - row) * 1.5) * sideLength;
             double y = Math.round(((row + col) * Math.sqrt(3) / 2) * sideLength);
 
             Polygon hex = createHexagon((int) x, (int) y);
-            g2.setColor(Color.BLACK);
+            g2.setColor(Color.black);
             g2.draw(hex);
 
-            if(cell == selectedCell){
-                g2.setColor(Color.yellow);
-            }else {
-                g2.setColor(Color.CYAN);
+            if (cell.isMine()) {
+                g2.setColor(Color.RED);
+            } else if (cell.isRevealed()) {
+                g2.setColor(Color.lightGray);
+            } else {
+                g2.setColor(Color.gray);
             }
             g2.fill(hex);
         }
@@ -83,12 +85,18 @@ public class Panel extends JPanel {
      * @param e the mouse event.
      */
     private void boardMouseListener(MouseEvent e) {
-        double temp1 = (double) (e.getX() - Math.round(sideLength * 50f)) / (3 * sideLength);
+        double temp1 = (double) (e.getX() - Math.round(sideLength * 12.5f)) / (3 * sideLength);
         double temp2 = (double) (e.getY()) / (Math.sqrt(3) * sideLength);
         int gx = (int) Math.round(temp2 - temp1);
         int gy = (int) Math.round(temp2 + temp1);
         if (grid.getCell(gx, gy) != null) {
             selectedCell = grid.getCell(gx, gy);
+        }
+        if (SwingUtilities.isRightMouseButton(e)) {
+            grid.rightClickedOnCell(selectedCell);
+        }
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            grid.leftClickedOnCell(selectedCell);
         }
         repaint();
     }

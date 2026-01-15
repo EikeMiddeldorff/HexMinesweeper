@@ -5,15 +5,10 @@ public class Main {
         //TODO: Do a version where mines on diagonals count.
         //TODO: Make online version.
 
-        int sideLength = 10;//Größe einer Zelle (skaliert das ganze Panel).
-        int size = 5;//size of the grid (number of cells along one edge)
-        //1 -> 1
-        //2 -> 7
-        //3 -> 19
-        //4 -> 37
-        //5 -> 61
+        int sideLength = 40;//Größe einer Zelle (skaliert das ganze Panel).
+        int size = 5;//size of the grid (number of cells along one edge
         //x -> 3x^2 - 3x + 1
-        int mines = 50; //number of mines in the grid
+        int mines = 20; //number of mines in the grid
         Grid grid = new Grid(size, mines);
 
         // Setup the frame (kp was hier genau passiert funktioniert aber)
